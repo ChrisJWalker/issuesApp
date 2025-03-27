@@ -88,7 +88,7 @@ Database::disconnect();
 
                         <!-- Show delete button if user is comment creator or admin -->
                         <?php if ($comment['per_id'] == $userId || $isAdmin): ?>
-                            <form action="delete_comment.php" method="POST" class="absolute top-2 right-2">
+                            <form action="comment_delete.php" method="POST" class="absolute top-2 right-2">
                                 <input type="hidden" name="comment_id" value="<?= $comment['id'] ?>">
                                 <input type="hidden" name="issue_id" value="<?= $issueId ?>">
                                 <button type="submit" class="text-red-500 hover:text-red-700">
@@ -101,13 +101,13 @@ Database::disconnect();
             </div>
 
             <!-- Post Comment Form -->
-            <form action="post_comment.php?id=<?= $issueId ?>" method="POST">
+            <form action="comment_create.php?id=<?= $issueId ?>" method="POST">
                 <textarea name="comment" class="w-full p-2 border border-gray-300 rounded-lg mt-2" placeholder="Write a comment..."></textarea>
                 <button type="submit" class="bg-blue-500 text-white p-2 rounded-lg mt-2">Post Comment</button>
             </form>
         </div>
 
-        <a href="list.php" class="text-blue-500 hover:text-blue-700 mt-4 inline-block">Back to Issues List</a>
+        <a href="homepage.php" class="text-blue-500 hover:text-blue-700 mt-4 inline-block">Back to Issues List</a>
     </div>
 
 </body>

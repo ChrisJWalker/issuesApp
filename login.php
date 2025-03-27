@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($computed_hash === $user['pwd_hash']) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['is_admin'] = ($user['admin'] === 'Yes');
-                header('Location: list.php');
+                header('Location: homepage.php');
                 exit();
             } else {
                 $error = 'Invalid email or password.';

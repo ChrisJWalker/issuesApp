@@ -43,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     Database::disconnect();
 
-    // Redirect to the issues list with a success message
-    header("Location: list.php?message=Issue%20has%20been%20updated");
+    // Redirect to the homepage with a success message
+    header("Location: homepage.php?message=Issue%20has%20been%20updated");
     exit();
 }
 
@@ -64,7 +64,7 @@ Database::disconnect();
     <h1 class="text-3xl font-semibold my-4">Edit Issue</h1>
 
     <div class="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
-        <form action="edit_issue.php?id=<?= $issueId ?>" method="POST" class="space-y-4">
+        <form action="issue_edit.php?id=<?= $issueId ?>" method="POST" class="space-y-4">
             <div>
                 <label for="short_description" class="block text-gray-700">Short Description</label>
                 <input type="text" name="short_description" id="short_description" value="<?= htmlspecialchars($issue['short_description']) ?>" required class="w-full p-2 border border-gray-300 rounded">

@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     Database::disconnect();
 
     // Redirect to the issues list with a success message
-    header("Location: list.php?message=Issue%20has%20been%20created");
+    header("Location: homepage.php?message=Issue%20has%20been%20created");
     exit();
 }
 ?>
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <h1 class="text-3xl font-semibold my-4">Create New Issue</h1>
 
     <div class="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
-        <form action="create_issue.php" method="POST" class="space-y-4">
+        <form action="issue_create.php" method="POST" class="space-y-4">
             <div>
                 <label for="short_description" class="block text-gray-700">Short Description</label>
                 <input type="text" name="short_description" id="short_description" required class="w-full p-2 border border-gray-300 rounded">

@@ -50,13 +50,14 @@ $message = isset($_GET['message']) ? $_GET['message'] : null;
         </button>
         <!-- Dropdown menu -->
         <div id="hamburger-menu" class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg hidden">
+            <a href="profile_view.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">View Profile</a> <!-- View Profile link -->
             <a href="logout.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a>
         </div>
     </div>
 
     <!-- Button to create a new issue -->
     <div class="fixed bottom-4 right-4 z-50">
-        <a href="create_issue.php" class="bg-blue-500 text-white p-4 rounded-full shadow-lg">
+        <a href="issue_create.php" class="bg-blue-500 text-white p-4 rounded-full shadow-lg">
             <i class="fas fa-plus text-2xl"></i>
         </a>
     </div>
@@ -71,14 +72,14 @@ $message = isset($_GET['message']) ? $_GET['message'] : null;
                     <p class="text-sm text-gray-500"><?= htmlspecialchars($issue['open_date']) ?> | <?= htmlspecialchars($issue['priority']) ?></p>
                 </div>
                 <div class="flex space-x-4">
-                    <a href="view_issue.php?id=<?= $issue['id'] ?>" class="text-blue-500 hover:text-blue-700">
+                    <a href="issue_view.php?id=<?= $issue['id'] ?>" class="text-blue-500 hover:text-blue-700">
                         <i class="fas fa-eye"></i> <!-- Eye icon for View -->
                     </a>
                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] || $_SESSION['user_id'] == $issue['creator_id']): ?>
-                    <a href="edit_issue.php?id=<?= $issue['id'] ?>" class="text-yellow-500 hover:text-yellow-700">
+                    <a href="issue_edit.php?id=<?= $issue['id'] ?>" class="text-yellow-500 hover:text-yellow-700">
                         <i class="fas fa-edit"></i> <!-- Edit icon -->
                     </a>
-                    <a href="delete_issue.php?id=<?= $issue['id'] ?>" onclick="return confirm('Are you sure you want to delete this issue? This will delete all comments too.');" class="text-red-500 hover:text-red-700">
+                    <a href="issue_delete.php?id=<?= $issue['id'] ?>" onclick="return confirm('Are you sure you want to delete this issue? This will delete all comments too.');" class="text-red-500 hover:text-red-700">
                         <i class="fas fa-trash"></i> <!-- Trash icon for Delete -->
                     </a>
                     <?php endif; ?>
@@ -89,7 +90,7 @@ $message = isset($_GET['message']) ? $_GET['message'] : null;
             <div class="mt-4">
                 <div class="flex items-center space-x-2">
                     <!-- Comment icon now serves as the clickable link to the view page -->
-                    <a href="view_issue.php?id=<?= $issue['id'] ?>" class="flex items-center space-x-2 text-gray-500 hover:text-blue-700">
+                    <a href="issue_view.php?id=<?= $issue['id'] ?>" class="flex items-center space-x-2 text-gray-500 hover:text-blue-700">
                         <i class="fas fa-comment-alt"></i>
                         <span><?= $issue['comment_count'] ?> Comments</span>
                     </a>

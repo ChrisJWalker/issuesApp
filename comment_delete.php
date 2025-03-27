@@ -33,10 +33,11 @@ if ($comment && ($comment['per_id'] == $userId || $isAdmin)) {
     $deleteStmt = $pdo->prepare("DELETE FROM iss_comments WHERE id = ?");
     $deleteStmt->execute([$commentId]);
     Database::disconnect();
-    header("Location: view_issue.php?id=$issueId");
+    header("Location: issue_view.php?id=$issueId");
     exit();
 } else {
     echo "Error: Unauthorized action.";
     Database::disconnect();
     exit();
 }
+?>

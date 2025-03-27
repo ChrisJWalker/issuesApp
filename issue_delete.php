@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // Check if issue ID is provided
 if (!isset($_GET['id'])) {
-    header("Location: list.php?message=No issue ID provided");
+    header("Location: homepage.php?message=No issue ID provided");
     exit();
 }
 
@@ -24,7 +24,7 @@ $issue = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$issue) {
     Database::disconnect();
-    header("Location: list.php?message=Issue not found");
+    header("Location: homepage.php?message=Issue not found");
     exit();
 }
 
@@ -32,7 +32,7 @@ if (!$issue) {
 if (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) {
     if ($_SESSION['user_id'] != $issue['per_id']) {
         Database::disconnect();
-        header("Location: list.php?message=You do not have permission to delete this issue");
+        header("Location: homepage.php?message=You do not have permission to delete this issue");
         exit();
     }
 }
@@ -46,5 +46,6 @@ $deleteIssue = $pdo->prepare("DELETE FROM iss_issues WHERE id = ?");
 $deleteIssue->execute([$issueId]);
 
 Database::disconnect();
-header("Location: list.php?message=Issue deleted successfully");
+header("Location: homepage.php?message=Issue deleted successfully");
 exit();
+?>

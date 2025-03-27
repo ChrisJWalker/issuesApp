@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'], $_GET['id'
     Database::disconnect();
 
     // Corrected redirect URL
-    header("Location: view_issue.php?id=" . $issueId);
+    header("Location: issue_view.php?id=" . $issueId);
     exit();
 }
 ?>
