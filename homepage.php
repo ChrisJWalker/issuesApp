@@ -51,6 +51,7 @@ $message = isset($_GET['message']) ? $_GET['message'] : null;
         <!-- Dropdown menu -->
         <div id="hamburger-menu" class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg hidden">
             <a href="profile_view.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">View Profile</a> <!-- View Profile link -->
+            <a href="directory.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Directory</a> <!-- Directory link -->
             <a href="logout.php" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a>
         </div>
     </div>
