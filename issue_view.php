@@ -22,15 +22,15 @@ if (!isset($_GET['id'])) {
 $issueId = $_GET['id'];
 
 $pdo = Database::connect();
-$stmt = $pdo->prepare("SELECT i.id, p.fname, p.lname, i.short_description, i.long_description, i.org, i.project, i.open_date, i.priority, i.per_id AS creator_id
+$stmt = $pdo->prepare("SELECT i.id, p.fname, p.lname, i.short_description, i.long_description, i.org, i.project, i.open_date, i.priority, i.per_id AS creator_id, i.attachment_link
                        FROM iss_issues i
                        JOIN iss_persons p ON i.per_id = p.id
                        WHERE i.id = ?");
 $stmt->execute([$issueId]);
 $issue = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Fetch comments for the issue
-$commentsStmt = $pdo->prepare("SELECT c.id, c.short_comment, c.long_comment, c.posted_date, c.per_id, p.fname, p.lname 
+// Fetch comments for the issue (added attachment_link)
+$commentsStmt = $pdo->prepare("SELECT c.id, c.short_comment, c.long_comment, c.posted_date, c.per_id, c.attachment_link, p.fname, p.lname 
                                FROM iss_comments c
                                JOIN iss_persons p ON c.per_id = p.id
                                WHERE c.iss_id = ?
@@ -76,6 +76,26 @@ Database::disconnect();
             <p class="text-gray-600"><?= nl2br(htmlspecialchars($issue['long_description'])) ?></p>
         </div>
 
+        <!-- Display Issue Attachment if available -->
+        <?php if (!empty($issue['attachment_link'])): ?>
+            <div class="mt-6">
+                <h3 class="font-semibold text-lg text-gray-700">Attachment</h3>
+                <?php 
+                    $filePath = htmlspecialchars($issue['attachment_link']);
+                    $fileExt = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+                ?>
+                <?php if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                    <img src="<?= $filePath ?>" alt="Attachment" class="max-w-full h-auto border rounded-lg shadow-md">
+                <?php elseif ($fileExt === 'pdf'): ?>
+                    <a href="<?= $filePath ?>" target="_blank" class="text-blue-500 hover:underline">
+                        <i class="fas fa-file-pdf"></i> View PDF
+                    </a>
+                <?php else: ?>
+                    <a href="<?= $filePath ?>" target="_blank" class="text-blue-500 hover:underline">Download Attachment</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
         <div class="mt-6">
             <h3 class="font-semibold text-lg text-gray-700">Comments</h3>
             <!-- Comments Section -->
@@ -84,7 +104,25 @@ Database::disconnect();
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-300 relative">
                         <p class="font-semibold"><?= htmlspecialchars($comment['fname']) ?> <?= htmlspecialchars($comment['lname']) ?> - <?= htmlspecialchars($comment['posted_date']) ?></p>
                         <p class="text-gray-600"><?= nl2br(htmlspecialchars($comment['short_comment'])) ?></p>
-                        
+
+                        <!-- Display Comment Attachment -->
+                        <?php if (!empty($comment['attachment_link'])): ?>
+                            <div class="mt-2">
+                                <?php 
+                                    $cFile = htmlspecialchars($comment['attachment_link']);
+                                    $cExt = strtolower(pathinfo($cFile, PATHINFO_EXTENSION));
+                                ?>
+                                <?php if (in_array($cExt, ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                                    <img src="<?= $cFile ?>" alt="Comment Attachment" class="max-w-xs mt-2 border rounded shadow">
+                                <?php elseif ($cExt === 'pdf'): ?>
+                                    <a href="<?= $cFile ?>" target="_blank" class="text-blue-500 hover:underline">
+                                        <i class="fas fa-file-pdf"></i> View PDF Attachment
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= $cFile ?>" target="_blank" class="text-blue-500 hover:underline">Download Attachment</a>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
 
                         <!-- Show delete button if user is comment creator or admin -->
                         <?php if ($comment['per_id'] == $userId || $isAdmin): ?>
@@ -101,9 +139,20 @@ Database::disconnect();
             </div>
 
             <!-- Post Comment Form -->
-            <form action="comment_create.php?id=<?= $issueId ?>" method="POST">
-                <textarea name="comment" class="w-full p-2 border border-gray-300 rounded-lg mt-2" placeholder="Write a comment..."></textarea>
-                <button type="submit" class="bg-blue-500 text-white p-2 rounded-lg mt-2">Post Comment</button>
+            <form action="comment_create.php?id=<?= $issueId ?>" method="POST" enctype="multipart/form-data" class="flex items-center space-x-2">
+                <!-- Comment Textbox -->
+                <textarea name="comment" class="w-full p-2 border border-gray-300 rounded-lg resize-none h-12" placeholder="Write a comment..." required></textarea>
+
+                <!-- Paperclip icon to trigger file input -->
+                <button type="button" class="text-gray-600 hover:text-blue-500" onclick="document.getElementById('commentAttachment').click()">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+
+                <!-- File input that opens with the paperclip click, hidden by default -->
+                <input type="file" name="attachment" id="commentAttachment" style="display:none;">
+
+                <!-- Post Comment Button -->
+                <button type="submit" class="bg-blue-500 text-white p-2 rounded-lg">Post Comment</button>
             </form>
         </div>
 

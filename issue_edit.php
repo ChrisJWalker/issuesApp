@@ -34,12 +34,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $org = $_POST['org'];
     $project = $_POST['project'];
     $priority = $_POST['priority'];
+    $filePath = $issue['attachment_link']; // Default to current file path
+
+    // File handling logic
+    if (!empty($_FILES['attachment']['name'])) {
+        // New file uploaded
+        $uploadDir = 'uploads/';
+        $fileName = basename($_FILES['attachment']['name']);
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $newFileName = uniqid() . "_" . $fileName;
+        $targetFile = $uploadDir . $newFileName;
+
+        // Allowed file types
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
+        if (in_array($fileExtension, $allowedTypes)) {
+            if ($_FILES['attachment']['size'] <= 2 * 1024 * 1024) { // 2MB limit
+                if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetFile)) {
+                    // Delete the old file if it's not the default
+                    if ($issue['attachment_link'] && file_exists($issue['attachment_link'])) {
+                        unlink($issue['attachment_link']);
+                    }
+                    $filePath = $targetFile;
+                } else {
+                    echo "Error: File upload failed.";
+                    exit();
+                }
+            } else {
+                echo "Error: File size exceeds 2MB.";
+                exit();
+            }
+        } else {
+            echo "Error: Invalid file type. Only JPG, JPEG, PNG, GIF, and PDF are allowed.";
+            exit();
+        }
+    } elseif (isset($_POST['remove_attachment']) && $issue['attachment_link']) {
+        // Remove file
+        if (file_exists($issue['attachment_link'])) {
+            unlink($issue['attachment_link']);
+            $filePath = NULL; // Set the file path to NULL in the database
+        }
+    }
 
     // Update the issue in the database
     $updateStmt = $pdo->prepare("UPDATE iss_issues 
-                                 SET short_description = ?, long_description = ?, org = ?, project = ?, priority = ? 
+                                 SET short_description = ?, long_description = ?, org = ?, project = ?, priority = ?, attachment_link = ? 
                                  WHERE id = ?");
-    $updateStmt->execute([$short_description, $long_description, $org, $project, $priority, $issueId]);
+    $updateStmt->execute([$short_description, $long_description, $org, $project, $priority, $filePath, $issueId]);
 
     Database::disconnect();
 
@@ -64,7 +104,7 @@ Database::disconnect();
     <h1 class="text-3xl font-semibold my-4">Edit Issue</h1>
 
     <div class="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
-        <form action="issue_edit.php?id=<?= $issueId ?>" method="POST" class="space-y-4">
+        <form action="issue_edit.php?id=<?= $issueId ?>" method="POST" enctype="multipart/form-data" class="space-y-4">
             <div>
                 <label for="short_description" class="block text-gray-700">Short Description</label>
                 <input type="text" name="short_description" id="short_description" value="<?= htmlspecialchars($issue['short_description']) ?>" required class="w-full p-2 border border-gray-300 rounded">
@@ -85,6 +125,28 @@ Database::disconnect();
                 <label for="priority" class="block text-gray-700">Priority</label>
                 <input type="text" name="priority" id="priority" value="<?= htmlspecialchars($issue['priority']) ?>" required class="w-full p-2 border border-gray-300 rounded">
             </div>
+
+            <!-- Display current attachment if exists -->
+            <?php if (!empty($issue['attachment_link'])): ?>
+                <div>
+                    <p class="text-gray-700">Current Attachment:</p>
+                    <a href="<?= $issue['attachment_link'] ?>" class="text-blue-500 hover:underline" target="_blank">
+                        View Current File
+                    </a>
+                    <div class="mt-2">
+                        <label for="remove_attachment" class="text-red-500 hover:text-red-700">
+                            <input type="checkbox" name="remove_attachment" id="remove_attachment">
+                            Remove this file
+                        </label>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <div>
+                <label for="attachment" class="block text-gray-700">Upload New File (Max 2MB, JPG, PNG, GIF, PDF)</label>
+                <input type="file" name="attachment" id="attachment" class="w-full p-2 border border-gray-300 rounded">
+            </div>
+
             <div class="flex justify-end">
                 <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Update Issue</button>
             </div>

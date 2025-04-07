@@ -15,17 +15,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $org = $_POST['org'];
     $project = $_POST['project'];
     $priority = $_POST['priority'];
-    $creator_id = $_SESSION['user_id']; // Assuming the session contains the logged-in user ID
+    $creator_id = $_SESSION['user_id']; // Logged-in user ID
     $open_date = date('Y-m-d'); // Current date as the open date
     $close_date = '0000-00-00'; // Default close date
+    $filePath = NULL; // Default to NULL if no file is uploaded
 
-    // Insert the issue into the database
+    // File upload logic
+    if (!empty($_FILES['attachment']['name'])) {
+        $uploadDir = 'uploads/';
+        $fileName = basename($_FILES['attachment']['name']);
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $newFileName = uniqid() . "_" . $fileName; // Prevent duplicate names
+        $targetFile = $uploadDir . $newFileName;
+
+        // Allowed file types
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
+        if (in_array($fileExtension, $allowedTypes)) {
+            if ($_FILES['attachment']['size'] <= 2 * 1024 * 1024) { // 2MB limit
+                if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetFile)) {
+                    $filePath = $targetFile;
+                } else {
+                    echo "Error: File upload failed.";
+                    exit();
+                }
+            } else {
+                echo "Error: File size exceeds 2MB.";
+                exit();
+            }
+        } else {
+            echo "Error: Invalid file type. Only JPG, JPEG, PNG, GIF, and PDF are allowed.";
+            exit();
+        }
+    }
+
+    // Insert into database
     $pdo = Database::connect();
-    $sql = "INSERT INTO iss_issues (short_description, long_description, org, project, priority, per_id, open_date, close_date) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO iss_issues (short_description, long_description, org, project, priority, per_id, open_date, close_date, attachment_link) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$short_description, $long_description, $org, $project, $priority, $creator_id, $open_date, $close_date]);
-
+    $stmt->execute([$short_description, $long_description, $org, $project, $priority, $creator_id, $open_date, $close_date, $filePath]);
     Database::disconnect();
 
     // Redirect to the issues list with a success message
@@ -46,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <h1 class="text-3xl font-semibold my-4">Create New Issue</h1>
 
     <div class="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
-        <form action="issue_create.php" method="POST" class="space-y-4">
+        <form action="issue_create.php" method="POST" enctype="multipart/form-data" class="space-y-4">
             <div>
                 <label for="short_description" class="block text-gray-700">Short Description</label>
                 <input type="text" name="short_description" id="short_description" required class="w-full p-2 border border-gray-300 rounded">
@@ -66,6 +94,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div>
                 <label for="priority" class="block text-gray-700">Priority</label>
                 <input type="text" name="priority" id="priority" required class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div>
+                <label for="attachment" class="block text-gray-700">Upload File (Max 2MB, JPG, PNG, GIF, PDF)</label>
+                <input type="file" name="attachment" id="attachment" class="w-full p-2 border border-gray-300 rounded">
             </div>
             <div class="flex justify-end">
                 <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Create Issue</button>

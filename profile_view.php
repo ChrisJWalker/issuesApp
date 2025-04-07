@@ -59,6 +59,12 @@ $isAdmin = $user['admin'] === 'Yes'; // Assuming 'Yes' means the user is an admi
             <p><strong>Mobile:</strong> <?= htmlspecialchars($user['mobile']) ?></p>
         </div>
 
+        <!-- Edit Profile Button -->
+        <div class="mt-6 text-center">
+            <a href="profile_edit.php" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                Edit Profile
+            </a>
+        </div>
     </div>
 
 </body>
