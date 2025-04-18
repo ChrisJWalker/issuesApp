@@ -1,6 +1,6 @@
 <?php
 session_start(); // Start the session to manage user login status
-require_once __DIR__ . '/database/database.php'; // Include the database connection file
+require_once __DIR__ . '../database/database.php'; // Include the database connection file
 
 // Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {

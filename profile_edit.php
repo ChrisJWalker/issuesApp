@@ -1,7 +1,7 @@
 <?php
 // Start the session and include the database connection
 session_start();
-require_once __DIR__ . '/database/database.php';
+require_once __DIR__ . '../database/database.php';
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);

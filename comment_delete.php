@@ -3,7 +3,7 @@
 session_start();
 
 // Include the database connection file
-require_once __DIR__ . '/database/database.php';
+require_once __DIR__ . '../database/database.php';
 
 // Enable error reporting for debugging purposes
 error_reporting(E_ALL);

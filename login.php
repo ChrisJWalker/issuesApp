@@ -3,7 +3,7 @@
 session_start();
 
 // Include the database connection file
-require 'database/database.php';
+require '../database/database.php';
 
 // Establish a connection to the database
 $pdo = Database::connect();

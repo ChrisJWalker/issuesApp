@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/database/database.php';
+require_once __DIR__ . '../database/database.php';
 
 // Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
