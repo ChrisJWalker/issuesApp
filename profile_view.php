@@ -9,8 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $pdo = Database::connect();
-// Get the user's profile information (assuming session contains the user_id)
-$stmt = $pdo->prepare("SELECT id, fname, lname, mobile, email, admin FROM iss_persons WHERE id = :id");
+$stmt = $pdo->prepare("SELECT id, fname, lname, mobile, email, admin, attachment_link FROM iss_persons WHERE id = :id");
 $stmt->execute(['id' => $_SESSION['user_id']]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 Database::disconnect();
@@ -20,8 +19,8 @@ if (!$user) {
     exit();
 }
 
-// Check if the user is an admin
-$isAdmin = $user['admin'] === 'Yes'; // Assuming 'Yes' means the user is an admin
+$isAdmin = $user['admin'] === 'Yes';
+$profilePic = $user['attachment_link'] ?: 'uploads/default-profile.png'; // Fallback if no image
 ?>
 
 <!DOCTYPE html>
@@ -44,20 +43,24 @@ $isAdmin = $user['admin'] === 'Yes'; // Assuming 'Yes' means the user is an admi
     </div>
 
     <div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
-        <div class="mb-4">
-            <!-- Display the [ADMIN] tag if the user is an admin -->
-            <p class="font-semibold text-lg">
-                <?= htmlspecialchars($user['fname']) ?> <?= htmlspecialchars($user['lname']) ?>
-                <?php if ($isAdmin): ?>
-                    <span class="text-red-500 font-bold text-sm">[ADMIN]</span> <!-- Special Admin tag -->
-                <?php endif; ?>
-            </p>
-            <p class="text-sm text-gray-500"><?= htmlspecialchars($user['email']) ?></p>
-        </div>
+    <div class="flex items-start mb-4">
+    <!-- Profile Image -->
+    <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture"
+         class="w-24 h-24 rounded-full border-4 border-blue-500 object-cover mr-6">
 
-        <div class="mb-4">
-            <p><strong>Mobile:</strong> <?= htmlspecialchars($user['mobile']) ?></p>
-        </div>
+    <div>
+        <!-- Name & Email -->
+        <p class="font-semibold text-lg">
+            <?= htmlspecialchars($user['fname']) ?> <?= htmlspecialchars($user['lname']) ?>
+            <?php if ($isAdmin): ?>
+                <span class="text-red-500 font-bold text-sm">[ADMIN]</span>
+            <?php endif; ?>
+        </p>
+        <p class="text-sm text-gray-500"><?= htmlspecialchars($user['email']) ?></p>
+        <p class="text-sm text-gray-500 mt-1"><strong>Mobile:</strong> <?= htmlspecialchars($user['mobile']) ?></p>
+    </div>
+</div>
+
 
         <!-- Edit Profile Button -->
         <div class="mt-6 text-center">
